@@ -1,0 +1,21 @@
+{
+  "name": "basethreescene",
+  "version": "1.0.0",
+  "description": "创建基本三维场景，提供渲染的对应的事件监听，只需几行代码，让你快速搭建一个三维场景，无需配置render、相机和场景，开箱即用。",
+  "keywords": [
+    "three.js",
+    "baseScene",
+    "3d"
+  ],
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "李嘉图、gogechang",
+  "license": "ISC",
+  "dependencies": {
+    "@types/three": "^0.159.0",
+    "three": "^0.159.0",
+    "typescript": "^5.3.3"
+  }
+}
