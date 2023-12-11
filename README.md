@@ -5,7 +5,7 @@
 npm i baseThreeScene
 ## 引入
 ```ts
-import threeScene from "@/utils/three/baseScene";
+import threeScene from "baseThreeScene";
 ```
 # 使用
 onMounted(() =>{
