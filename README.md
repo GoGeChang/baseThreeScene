@@ -7,7 +7,16 @@ npm i baseThreeScene
 ```ts
 import threeScene from "baseThreeScene";
 ```
-# 使用
+## 准备一个dom
+``` html
+<div class="three-container" ref="threeContainer"></div>
+```
+
+## 定义变量
+```ts
+const threeContainer = ref<HTMLElement | null>(null);
+```
+## 实例化构造函数
 ```ts
 onMounted(() =>{
   const baseScene = new threeScene({
