@@ -8,7 +8,7 @@ npm i baseThreeScene
 import threeScene from "baseThreeScene";
 ```
 # 使用
-```vue
+```ts
 onMounted(() =>{
   const baseScene = new threeScene({
     domElem: threeContainer.value as HTMLElement // 绑定一个dom元素
