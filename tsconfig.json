@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "lib": ["es5", "es6", "ES2022"],
+    "lib": ["es5", "es6", "ES2022", "DOM"],
     "baseUrl": "./",
     "declaration": true, // 是否生成.d.ts文件
-    "declarationDir": "./types", // .d.ts文件输出路径
+    // "declarationDir": "./build", // .d.ts文件输出路径
     "target": "ES5", // 编译目标
-    "module": "CommonJS",
+    "module": "ES6",
     // "strict": true,
     "moduleResolution": "Node",
     "outDir": "./build",
