@@ -118,8 +118,10 @@ class threeScene {
     this.renderer.setPixelRatio(window.devicePixelRatio);
   }
   animation() {
+    // @ts-ignore
     this.event.dispatchEvent({type: 'onRenderBefor'})
     this.renderer.render(this.scene, this.camera);
+    // @ts-ignore
     this.event.dispatchEvent({type: "onRenderAfter"})
 
     this.animationId = requestAnimationFrame(this.animation.bind(this));
