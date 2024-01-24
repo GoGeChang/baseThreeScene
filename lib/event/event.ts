@@ -1,4 +1,4 @@
 import { EventDispatcher } from "three";
 
-let t = new EventDispatcher();
+export default new EventDispatcher()
 
