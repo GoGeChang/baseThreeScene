@@ -51,8 +51,10 @@ class threeScene {
 
     this.scene.add(this.light);
 
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    // 设置像素比
+    this.renderer.domElement.width = this.width;
+    this.renderer.domElement.height = this.height;
+
+    this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -60,6 +62,8 @@ class threeScene {
 
     // 场景自适应大小
     window.addEventListener("resize", this.onWindowResize.bind(this), false);
+
+    this.onWindowResize();
 
     this.initOptionElem();
     // 开始动画
