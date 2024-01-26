@@ -78,6 +78,7 @@ class threeScene {
     this.onWindowResize();
 
     this.initOptionElem();
+    window.addEventListener('mousemove', this.onMouseMove.bind(this), false)
     // 开始动画
     this.animation();
   }
