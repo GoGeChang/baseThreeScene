@@ -72,8 +72,9 @@ enableClick?: boolean; // 监听click射线查询事件的结果
 `onMouseMove`，返回`mesh[]`
 
 ```js
-baseScene.event.addEventListener("onMouseMoveFind", (meshs) => {
+baseScene.event.addEventListener("onMouseMoveFind", (data) => {
   // 用查找的meshs做点什么
+  data.meshs
 });
 ```
 meshs 是查找到射线投射方向所触碰到的所有 Mesh，meshs[0]就是第一个被你鼠标接触到的物体。
@@ -82,8 +83,9 @@ meshs 是查找到射线投射方向所触碰到的所有 Mesh，meshs[0]就是�
 设置启用监听，`option.enableClick = true`;
 `o`，返回`mesh[]`
 ```js
-baseScene.event.addEventListener("onClickFind", (meshs) => {
+baseScene.event.addEventListener("onClickFind", (data) => {
   // 用查找的meshs做点什么
+  data.meshs
 });
 ```
 
