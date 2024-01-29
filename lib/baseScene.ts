@@ -11,6 +11,8 @@ const defaultOptions: threeSceneOptions = {
   showFloor: true,
   showStats: false,
   enableRay: false,
+  enableClick: false,
+  enableMouseMove: false
 };
 /**
  * 生成基础场景和一些配置
@@ -78,7 +80,8 @@ class threeScene {
     this.onWindowResize();
 
     this.initOptionElem();
-    window.addEventListener('mousemove', this.onMouseMove.bind(this), false)
+    this.domElem.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+    this.domElem.addEventListener('click', this.onClick.bind(this), false)
     // 开始动画
     this.animation();
   }
@@ -129,19 +132,26 @@ class threeScene {
     this.renderer.setPixelRatio(window.devicePixelRatio);
   }
   onMouseMove(e: MouseEvent) {
-
-    if (this.options.enableRay) {
-      this.raycaster.mouse.x = (e.clientX / this.width) * 2 - 1;
-      this.raycaster.mouse.y = (e.clientY / this.height) * 2 + 1;
+    this.raycaster.mouse.x = (e.clientX / this.width) * 2 - 1;
+    this.raycaster.mouse.y = (e.clientY / this.height) * 2 + 1;
+    if (this.options.enableRay && this.options.enableMouseMove) {
       this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
-
       let findMesh = this.raycaster.ray.intersectObjects(this.raycaster.rayObject3D);
       
-      // @ts-ignore
-      this.event.dispatchEvent({type: 'onRayFind', findMesh})
-
+      if(findMesh.length) {
+        // @ts-ignore
+        this.event.dispatchEvent({type: 'onMouseMoveFind', findMesh})
+      }
     }
 
+  }
+  onClick(e: MouseEvent) {
+    if (this.options.enableRay && this.options.enableClick) {
+      this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
+      let findMesh = this.raycaster.ray.intersectObjects(this.raycaster.rayObject3D);
+      // @ts-ignore
+      this.event.dispatchEvent({type: 'onClickFind', findMesh})
+    }
   }
   animation() {
     // @ts-ignore
