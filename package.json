@@ -1,12 +1,16 @@
 {
   "name": "threescene-vue3",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "创建基本三维场景，提供渲染的对应的事件监听，只需几行代码，让你快速搭建一个三维场景，无需配置render、相机和场景，开箱即用。",
   "keywords": [
     "three.js",
     "baseScene",
     "3d"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GoGeChang/baseThreeScene"
+  },
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
