@@ -14,4 +14,6 @@ export type threeSceneOptions =  {
   showFloor?: boolean;
   showStats?: boolean;
   enableRay?: boolean;
+  enableMouseMove?: boolean;
+  enableClick?: boolean;
 }
