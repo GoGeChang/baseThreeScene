@@ -3,7 +3,6 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { EventDispatcher } from "three";
 import { threeSceneOptions } from "types/threeScene";
-import { type } from "os";
 
 const defaultOptions: threeSceneOptions = {
   showGridHelper: false,
@@ -17,7 +16,7 @@ const defaultOptions: threeSceneOptions = {
 /**
  * 生成基础场景和一些配置
  */
-class threeScene {
+class threeScene extends EventDispatcher {
   /**
    * @param {THREE.WebGLRenderer} renderer webgl渲染器对象
    * @param {THREE.Scene | null} scene 场景对象
@@ -54,6 +53,7 @@ class threeScene {
   options: threeSceneOptions;
   stats: any;
   constructor(options: threeSceneOptions = defaultOptions) {
+    super();
     this.options = options;
     this.enabelRay = options.enableRay;
     this.light.position.set(30, 30, 30);
@@ -148,7 +148,7 @@ class threeScene {
 
       if (meshs.length) {
         // @ts-ignore
-        this.event.dispatchEvent({ type: "onMouseMoveFind", meshs });
+        this.dispatchEvent({ type: "onMouseMoveFind", meshs });
       }
     }
   }
@@ -157,15 +157,15 @@ class threeScene {
       this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
       let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
       // @ts-ignore
-      this.event.dispatchEvent({ type: "onClickFind", meshs });
+      this.dispatchEvent({ type: "onClickFind", meshs });
     }
   }
   animation() {
     // @ts-ignore
-    this.event.dispatchEvent({ type: "onRenderBefor" });
+    this.dispatchEvent({ type: "onRenderBefor" });
     this.renderer.render(this.scene, this.camera);
     // @ts-ignore
-    this.event.dispatchEvent({ type: "onRenderAfter" });
+    this.dispatchEvent({ type: "onRenderAfter" });
 
     this.animationId = requestAnimationFrame(this.animation.bind(this));
 
@@ -195,5 +195,4 @@ class threeScene {
     this.renderer.dispose();
   }
 }
-
 export default threeScene;
