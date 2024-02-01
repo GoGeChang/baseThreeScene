@@ -20,8 +20,8 @@
   "license": "MIT",
   "dependencies": {
     "@types/node": "^20.11.5",
-    "@types/three": "^0.159.0",
-    "three": "^0.159.0",
+    "@types/three": "0.159.0",
+    "three": "0.159.0",
     "typescript": "^5.3.3"
   }
 }
