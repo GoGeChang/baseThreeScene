@@ -30,13 +30,13 @@ function sceneRead(baseScene: ThreeScene) {
    `onRenderBefor`，无返回值
 
 ```js
-baseScene.event.addEventListener("onRenderBefor", () => {
+baseScene.addEventListener("onRenderBefor", () => {
   // 下一帧动画开始渲染前，做点什么。
 });
 ```
 
 ```js
-baseScene.event.addEventListener("onRayFind", (findMeshs) => {
+baseScene.addEventListener("onRayFind", (findMeshs) => {
   console.log(findMeshs);
 });
 ```
@@ -45,7 +45,7 @@ baseScene.event.addEventListener("onRayFind", (findMeshs) => {
    `onRenderAfter`，无返回值
 
 ```js
-baseScene.event.addEventListener("onRenderAfter", () => {
+baseScene.addEventListener("onRenderAfter", () => {
   // 动画渲染完毕，做点什么。
 });
 ```
@@ -72,7 +72,7 @@ enableClick?: boolean; // 监听click射线查询事件的结果
 `onMouseMove`，返回`mesh[]`
 
 ```js
-baseScene.event.addEventListener("onMouseMoveFind", (data) => {
+baseScene.addEventListener("onMouseMoveFind", (data) => {
   // 用查找的meshs做点什么
   data.meshs
 });
@@ -83,7 +83,7 @@ meshs 是查找到射线投射方向所触碰到的所有 Mesh，meshs[0]就是�
 设置启用监听，`option.enableClick = true`;
 `o`，返回`mesh[]`
 ```js
-baseScene.event.addEventListener("onClickFind", (data) => {
+baseScene.addEventListener("onClickFind", (data) => {
   // 用查找的meshs做点什么
   data.meshs
 });
