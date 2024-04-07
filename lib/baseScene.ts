@@ -153,11 +153,15 @@ class threeScene extends EventDispatcher {
     }
   }
   onClick(e: MouseEvent) {
-    if (this.options.enableRay && this.options.enableClick) {
-      this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
-      let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
-      // @ts-ignore
-      this.dispatchEvent({ type: "onClickFind", meshs });
+    if (this.options.enableClick) {
+       // @ts-ignore
+      this.dispatchEvent({ type: "onClick", meshs });
+      if (this.options.enableRay) {
+        this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
+        let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
+        // @ts-ignore
+        this.dispatchEvent({ type: "onClickFind", meshs });
+      }
     }
   }
   animation() {
