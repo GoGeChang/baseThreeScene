@@ -8,4 +8,5 @@ export type threeSceneOptions =  {
   enableRay?: boolean; // 启用射线查询
   enableMouseMove?: boolean; // 监听mouseMove射线查询事件的结果
   enableClick?: boolean; // 监听click射线查询事件的结果
+  devicePixelRatio?: number;
 }

@@ -12,6 +12,7 @@ const defaultOptions: threeSceneOptions = {
   enableRay: false,
   enableClick: false,
   enableMouseMove: false,
+  devicePixelRatio: 1
 };
 /**
  * 生成基础场景和一些配置
@@ -69,7 +70,7 @@ class threeScene extends EventDispatcher {
     this.renderer.domElement.height = this.height;
 
     this.renderer.setSize(this.width, this.height);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setPixelRatio(options.devicePixelRatio || window.devicePixelRatio);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     (this.domElem as HTMLElement).appendChild(this.renderer.domElement);
@@ -133,7 +134,7 @@ class threeScene extends EventDispatcher {
     this.camera.aspect = this.width / this.height;
     this.renderer.setSize(this.width, this.height);
     this.camera.updateProjectionMatrix();
-    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setPixelRatio(this.options.devicePixelRatio || window.devicePixelRatio);
   }
   onMouseMove(e: MouseEvent) {
     let { left, top } = this.getSceneSize();
