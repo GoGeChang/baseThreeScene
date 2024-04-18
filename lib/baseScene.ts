@@ -27,7 +27,7 @@ class threeScene extends EventDispatcher {
    * @param {HTMLElement}  domElem 生成的canvas DOM对象
    * @param {threeSceneOptions}  options 配置对象，用于额外的配置基础场景元素
    */
-  renderer = new THREE.WebGLRenderer();
+  renderer:THREE.WebGLRenderer;
   scene = new THREE.Scene();
   light = new THREE.AmbientLight();
   width = 0;
@@ -57,6 +57,9 @@ class threeScene extends EventDispatcher {
     super();
     this.options = options;
     this.enabelRay = options.enableRay;
+
+    this.renderer = new THREE.WebGLRenderer(options.renderParams);
+
     this.light.position.set(30, 30, 30);
     this.camera.position.set(20, 20, 20);
     this.domElem = options.domElem;

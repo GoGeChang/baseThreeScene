@@ -1,3 +1,5 @@
+import { WebGLRendererParameters } from "three";
+
 export type threeSceneOptions =  {
 
   domElem?: HTMLElement; // 需要将three场景canvas插入的dom，如果没有，就默认插入元素父节点
@@ -9,4 +11,5 @@ export type threeSceneOptions =  {
   enableMouseMove?: boolean; // 监听mouseMove射线查询事件的结果
   enableClick?: boolean; // 监听click射线查询事件的结果
   devicePixelRatio?: number;
+  renderParams?: WebGLRendererParameters
 }
