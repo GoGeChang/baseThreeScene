@@ -199,7 +199,7 @@ class threeScene extends EventDispatcher {
         });
       }
     });
-
+    this.control.dispose();
     this.renderer.dispose();
   }
 }

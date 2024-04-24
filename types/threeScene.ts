@@ -1,4 +1,6 @@
-import { WebGLRendererParameters } from "three";
+import * as THREE from "three";
+import { CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer"
+import { CSS3DRenderer } from "three/examples/jsm/renderers/CSS3DRenderer"
 
 export type threeSceneOptions =  {
 
@@ -11,5 +13,6 @@ export type threeSceneOptions =  {
   enableMouseMove?: boolean; // 监听mouseMove射线查询事件的结果
   enableClick?: boolean; // 监听click射线查询事件的结果
   devicePixelRatio?: number;
-  renderParams?: WebGLRendererParameters
+  renderParams?: THREE.WebGLRendererParameters
+  render?: THREE.WebGLRenderer |  CSS2DRenderer | CSS3DRenderer
 }
