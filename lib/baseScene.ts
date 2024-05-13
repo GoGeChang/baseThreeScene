@@ -12,7 +12,7 @@ const defaultOptions: threeSceneOptions = {
   enableRay: false,
   enableClick: false,
   enableMouseMove: false,
-  devicePixelRatio: 1
+  devicePixelRatio: 1,
 };
 /**
  * 生成基础场景和一些配置
@@ -27,7 +27,7 @@ class threeScene extends EventDispatcher {
    * @param {HTMLElement}  domElem 生成的canvas DOM对象
    * @param {threeSceneOptions}  options 配置对象，用于额外的配置基础场景元素
    */
-  renderer:THREE.WebGLRenderer;
+  renderer: THREE.WebGLRenderer;
   scene = new THREE.Scene();
   light = new THREE.AmbientLight();
   width = 0;
@@ -55,6 +55,7 @@ class threeScene extends EventDispatcher {
   stats: any;
   constructor(options: threeSceneOptions = defaultOptions) {
     super();
+    let { width, height } = this.getSceneSize();
     this.options = options;
     this.enabelRay = options.enableRay;
 
@@ -64,8 +65,8 @@ class threeScene extends EventDispatcher {
     this.camera.position.set(20, 20, 20);
     this.domElem = options.domElem;
     this.control = new OrbitControls(this.camera, this.renderer.domElement);
-    this.width = this.getSceneSize()?.width as number;
-    this.height = this.getSceneSize()?.height as number;
+    this.width = width;
+    this.height = height;
 
     this.scene.add(this.light);
 
@@ -73,7 +74,9 @@ class threeScene extends EventDispatcher {
     this.renderer.domElement.height = this.height;
 
     this.renderer.setSize(this.width, this.height);
-    this.renderer.setPixelRatio(options.devicePixelRatio || window.devicePixelRatio);
+    this.renderer.setPixelRatio(
+      options.devicePixelRatio || window.devicePixelRatio
+    );
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     (this.domElem as HTMLElement).appendChild(this.renderer.domElement);
@@ -132,12 +135,15 @@ class threeScene extends EventDispatcher {
     }
   }
   onWindowResize() {
-    this.width = this.getSceneSize()?.width as number;
-    this.height = this.getSceneSize()?.height as number;
-    this.camera.aspect = this.width / this.height;
-    this.renderer.setSize(this.width, this.height);
+    let { width, height } = this.getSceneSize();
+    this.width = width;
+    this.height = height;
+    this.camera.aspect = width / height;
+    this.renderer.setSize(width, height);
     this.camera.updateProjectionMatrix();
-    this.renderer.setPixelRatio(this.options.devicePixelRatio || window.devicePixelRatio);
+    this.renderer.setPixelRatio(
+      this.options.devicePixelRatio || window.devicePixelRatio
+    );
   }
   onMouseMove(e: MouseEvent) {
     let { left, top } = this.getSceneSize();
@@ -158,7 +164,7 @@ class threeScene extends EventDispatcher {
   }
   onClick(e: MouseEvent) {
     if (this.options.enableClick) {
-       // @ts-ignore
+      // @ts-ignore
       this.dispatchEvent({ type: "onClick", meshs });
       if (this.options.enableRay) {
         this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
