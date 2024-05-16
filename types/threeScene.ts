@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer"
 import { CSS3DRenderer } from "three/examples/jsm/renderers/CSS3DRenderer"
+import { Event } from "three"
 
 export type threeSceneOptions =  {
 
@@ -10,9 +11,17 @@ export type threeSceneOptions =  {
   showFloor?: boolean; // 是显示地面平面，用于辅助显示
   showStats?: boolean; // 是否显示帧率和内存占用率
   enableRay?: boolean; // 启用射线查询
-  enableMouseMove?: boolean; // 监听mouseMove射线查询事件的结果
-  enableClick?: boolean; // 监听click射线查询事件的结果
   devicePixelRatio?: number;
   renderParams?: THREE.WebGLRendererParameters
   render?: THREE.WebGLRenderer |  CSS2DRenderer | CSS3DRenderer
 }
+
+export type AnimationEvent = 'onRenderBefor' | 'onRenderAfter';
+export type BaseEventType = 'onClickFind' | 'onMouseMoveFind' | 'onMouseMove' | 'onClick';
+
+export interface dispatchEventType extends Event {
+  type: AnimationEvent | BaseEventType,
+  mesh?: THREE.Object3D | THREE.Mesh,
+  meshs?: THREE.Intersection[]
+}
+
