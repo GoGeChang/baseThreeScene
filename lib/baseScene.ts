@@ -150,7 +150,7 @@ class threeScene extends EventDispatcher {
     this.raycaster.mouse.x = ((e.clientX - left) / this.width) * 2 - 1;
     this.raycaster.mouse.y = -((e.clientY - top) / this.height) * 2 + 1;
     this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
-    if (this.options.enableRay && this.options.enableMouseMove) {
+    if (this.options.enableRay) {
       let meshs = this.raycaster.ray.intersectObjects(
         this.scene.children,
         false
@@ -163,15 +163,13 @@ class threeScene extends EventDispatcher {
     }
   }
   onClick(e: MouseEvent) {
-    if (this.options.enableClick) {
+    // @ts-ignore
+    this.dispatchEvent({ type: "onClick", meshs });
+    if (this.options.enableRay) {
+      this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
+      let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
       // @ts-ignore
-      this.dispatchEvent({ type: "onClick", meshs });
-      if (this.options.enableRay) {
-        this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
-        let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
-        // @ts-ignore
-        this.dispatchEvent({ type: "onClickFind", meshs });
-      }
+      this.dispatchEvent({ type: "onClickFind", meshs });
     }
   }
   animation() {
@@ -187,7 +185,7 @@ class threeScene extends EventDispatcher {
   }
 
   getSceneSize() {
-    return this.domElem?.getBoundingClientRect();
+    return this.renderer.domElement?.getBoundingClientRect();
   }
 
   dispose() {
