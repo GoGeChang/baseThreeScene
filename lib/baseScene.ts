@@ -10,8 +10,6 @@ const defaultOptions: threeSceneOptions = {
   showFloor: true,
   showStats: false,
   enableRay: false,
-  enableClick: false,
-  enableMouseMove: false,
   devicePixelRatio: 1,
 };
 /**
@@ -55,7 +53,6 @@ class threeScene extends EventDispatcher {
   stats: any;
   constructor(options: threeSceneOptions = defaultOptions) {
     super();
-    let { width, height } = this.getSceneSize();
     this.options = options;
     this.enabelRay = options.enableRay;
 
@@ -65,6 +62,7 @@ class threeScene extends EventDispatcher {
     this.camera.position.set(20, 20, 20);
     this.domElem = options.domElem;
     this.control = new OrbitControls(this.camera, this.renderer.domElement);
+    let { width, height } = this.getSceneSize();
     this.width = width;
     this.height = height;
 
@@ -93,6 +91,7 @@ class threeScene extends EventDispatcher {
       false
     );
     this.domElem.addEventListener("click", this.onClick.bind(this), false);
+
     // 开始动画
     this.animation();
   }
@@ -146,23 +145,19 @@ class threeScene extends EventDispatcher {
     );
   }
   onMouseMove(e: MouseEvent) {
-    let { left, top } = this.getSceneSize();
-    this.raycaster.mouse.x = ((e.clientX - left) / this.width) * 2 - 1;
-    this.raycaster.mouse.y = -((e.clientY - top) / this.height) * 2 + 1;
+    let { left, top, width, height } = this.renderer.domElement.getBoundingClientRect();
+    this.raycaster.mouse.x = ((e.clientX - left) / width) * 2 - 1;
+    this.raycaster.mouse.y = -((e.clientY - top) / height) * 2 + 1;
     this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
     if (this.options.enableRay) {
       let meshs = this.raycaster.ray.intersectObjects(
         this.scene.children,
         false
       );
-
-      if (meshs.length) {
-        // @ts-ignore
-        this.dispatchEvent({ type: "onMouseMoveFind", meshs });
-      }
     }
   }
   onClick(e: MouseEvent) {
+    let meshs = this.raycaster.ray.intersectObjects(this.scene.children, false);
     // @ts-ignore
     this.dispatchEvent({ type: "onClick", meshs });
     if (this.options.enableRay) {
@@ -170,6 +165,10 @@ class threeScene extends EventDispatcher {
       let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
       // @ts-ignore
       this.dispatchEvent({ type: "onClickFind", meshs });
+      if (meshs.length) {
+        // @ts-ignore
+        this.dispatchEvent({ type: "onMouseMoveFind", meshs });
+      }
     }
   }
   animation() {
@@ -185,7 +184,7 @@ class threeScene extends EventDispatcher {
   }
 
   getSceneSize() {
-    return this.renderer.domElement?.getBoundingClientRect();
+    return this.domElem?.getBoundingClientRect();
   }
 
   dispose() {
