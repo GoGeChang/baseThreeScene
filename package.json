@@ -1,6 +1,6 @@
 {
   "name": "threescene-vue3",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "description": "创建基本三维场景，提供渲染的对应的事件监听，只需几行代码，让你快速搭建一个三维场景，无需配置render、相机和场景，开箱即用。",
   "keywords": [
     "three.js",
