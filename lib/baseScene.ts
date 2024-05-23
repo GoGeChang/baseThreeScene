@@ -146,8 +146,9 @@ class threeScene extends EventDispatcher {
     );
   }
   onMouseMove(e: MouseEvent) {
-    if(this.stopAnimation) return;
-    let { left, top, width, height } = this.renderer.domElement.getBoundingClientRect();
+    if (this.stopAnimation) return;
+    let { left, top, width, height } =
+      this.renderer.domElement.getBoundingClientRect();
     this.raycaster.mouse.x = ((e.clientX - left) / width) * 2 - 1;
     this.raycaster.mouse.y = -((e.clientY - top) / height) * 2 + 1;
     this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
@@ -163,7 +164,7 @@ class threeScene extends EventDispatcher {
     }
   }
   onClick(e: MouseEvent) {
-    if(this.stopAnimation) return;
+    if (this.stopAnimation) return;
     let meshs = this.raycaster.ray.intersectObjects(this.scene.children, false);
     // @ts-ignore
     this.dispatchEvent({ type: "onClick", meshs });
@@ -175,13 +176,13 @@ class threeScene extends EventDispatcher {
     }
   }
   animation() {
-    if(this.stopAnimation) return;
-    // @ts-ignore
-    this.dispatchEvent({ type: "onRenderBefor" });
-    this.renderer.render(this.scene, this.camera);
-    // @ts-ignore
-    this.dispatchEvent({ type: "onRenderAfter" });
-
+    if (!this.stopAnimation) {
+      // @ts-ignore
+      this.dispatchEvent({ type: "onRenderBefor" });
+      this.renderer.render(this.scene, this.camera);
+      // @ts-ignore
+      this.dispatchEvent({ type: "onRenderAfter" });
+    }
     this.animationId = requestAnimationFrame(this.animation.bind(this));
 
     if (this.stats) this.stats.update();
