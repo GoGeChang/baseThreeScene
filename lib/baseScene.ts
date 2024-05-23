@@ -51,6 +51,7 @@ class threeScene extends EventDispatcher {
   domElem = <HTMLElement | undefined>undefined;
   options: threeSceneOptions;
   stats: any;
+  stopAnimation = false;
   constructor(options: threeSceneOptions = defaultOptions) {
     super();
     this.options = options;
@@ -145,6 +146,7 @@ class threeScene extends EventDispatcher {
     );
   }
   onMouseMove(e: MouseEvent) {
+    if(this.stopAnimation) return;
     let { left, top, width, height } = this.renderer.domElement.getBoundingClientRect();
     this.raycaster.mouse.x = ((e.clientX - left) / width) * 2 - 1;
     this.raycaster.mouse.y = -((e.clientY - top) / height) * 2 + 1;
@@ -154,9 +156,14 @@ class threeScene extends EventDispatcher {
         this.scene.children,
         false
       );
+      if (meshs.length) {
+        // @ts-ignore
+        this.dispatchEvent({ type: "onMouseMoveFind", meshs });
+      }
     }
   }
   onClick(e: MouseEvent) {
+    if(this.stopAnimation) return;
     let meshs = this.raycaster.ray.intersectObjects(this.scene.children, false);
     // @ts-ignore
     this.dispatchEvent({ type: "onClick", meshs });
@@ -165,13 +172,10 @@ class threeScene extends EventDispatcher {
       let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
       // @ts-ignore
       this.dispatchEvent({ type: "onClickFind", meshs });
-      if (meshs.length) {
-        // @ts-ignore
-        this.dispatchEvent({ type: "onMouseMoveFind", meshs });
-      }
     }
   }
   animation() {
+    if(this.stopAnimation) return;
     // @ts-ignore
     this.dispatchEvent({ type: "onRenderBefor" });
     this.renderer.render(this.scene, this.camera);
