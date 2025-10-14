@@ -1,29 +1,45 @@
 {
   "name": "@gogec/three-scene-vue3",
-  "version": "0.0.2",
-  "description": "创建基本三维场景，提供渲染的对应的事件监听，只需几行代码，让你快速搭建一个三维场景，无需配置render、相机和场景，开箱即用。",
+  "version": "0.0.3",
+  "description": "创建基本三维场景，提供渲染事件监听，只需几行代码即可快速搭建一个三维场景，无需手动配置渲染器、相机和场景。",
   "keywords": [
     "three.js",
     "baseScene",
-    "3d"
+    "3d",
+    "vue3",
+    "three"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/GoGeChang/baseThreeScene"
   },
-  "main": "build/index.js",
+
+  "main": "build/index.js",              
+  "types": "build/index.d.ts",           
+  "files": [                             
+    "build",
+    "README.md"
+  ],
+
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && node ./scripts/copycomponents.js"
+    "build": "tsc && node ./scripts/copycomponents.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "李嘉图、gogechang",
+
+  "author": "李嘉图 (GoGeChang)",
   "license": "MIT",
-  "dependencies": {
+
+  "peerDependencies": {
+    "three": ">=0.180.0",
+    "@types/three": ">=0.180.0"
+  },
+  "devDependencies": {
     "@types/node": "^24.7.2",
     "@types/three": "0.180.0",
     "three": "0.180.0",
     "typescript": "^5.9.3"
   },
+
   "publishConfig": {
     "access": "public"
   }
