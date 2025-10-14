@@ -18,7 +18,7 @@ onMounted(() => {
     domElem: threeContainer.value as HTMLElement,
     showAxesHelper: true,
     showGridHelper: true,
-    ...props.options
+    ...props.options,
   });
   emits("onReady", baseScene);
 
@@ -34,14 +34,14 @@ onMounted(() => {
       });
     }
     // 移除stats DOM
-    if(baseScene.stats) {
+    if (baseScene.stats) {
       baseScene.stats.dom?.remove();
     }
   });
 });
 </script>
 <style lang="scss" scoped>
-.three-container{
+.three-container {
   width: 100%;
   height: 100%;
   overflow: hidden;
