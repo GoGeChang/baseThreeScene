@@ -1,12 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module.js";
-import { EventDispatcher } from "three";
-import {
-  TypedEventDispatcher,
-  type ThreeSceneOptions,
-  type dispatchEventType,
-} from "../types/threeScene";
+import { type ThreeSceneOptions } from "../types/threeScene";
+import { TypedEventBus, ThreeSceneEvent } from "../types/threeScene";
 const defaultOptions: ThreeSceneOptions = {
   showGridHelper: false,
   showAxesHelper: false,
@@ -18,7 +14,25 @@ const defaultOptions: ThreeSceneOptions = {
 /**
  * 生成基础场景和一些配置
  */
-class ThreeScene extends TypedEventDispatcher<dispatchEventType> {
+export default class ThreeScene {
+  // 强类型事件总线
+  private readonly bus = new TypedEventBus<ThreeSceneEvent>();
+  addEventListener<K extends ThreeSceneEvent["type"]>(
+    type: K,
+    listener: (event: Extract<ThreeSceneEvent, { type: K }>) => void
+  ) {
+    this.bus.addEventListener(type, listener);
+  }
+  removeEventListener<K extends ThreeSceneEvent["type"]>(
+    type: K,
+    listener: (event: Extract<ThreeSceneEvent, { type: K }>) => void
+  ) {
+    this.bus.removeEventListener(type, listener);
+  }
+  protected emit(event: ThreeSceneEvent) {
+    this.bus.dispatchEvent(event);
+  }
+
   renderer: THREE.WebGLRenderer;
   scene = new THREE.Scene();
   light = new THREE.AmbientLight();
@@ -41,13 +55,11 @@ class ThreeScene extends TypedEventDispatcher<dispatchEventType> {
   // 在鼠标移动中根据鼠标位置查询物体
   control = <OrbitControls | null>null;
   animationId = <undefined | number>undefined;
-  event = <EventDispatcher>new EventDispatcher();
   domElem = <HTMLElement | undefined>undefined;
   options: ThreeSceneOptions;
   stats: any;
   stopAnimation = false;
   constructor(options: ThreeSceneOptions = defaultOptions) {
-    super();
     this.options = options;
     this.enabelRay = options.enableRay;
 
@@ -100,7 +112,7 @@ class ThreeScene extends TypedEventDispatcher<dispatchEventType> {
     // 开始动画
     this.animation();
   }
-  async initOptionElem() {
+  private async initOptionElem() {
     // 添加辅助网格底盘
     if (this.options.showGridHelper) {
       let tempGrid = new THREE.GridHelper(50, 25);
@@ -138,7 +150,7 @@ class ThreeScene extends TypedEventDispatcher<dispatchEventType> {
       }
     }
   }
-  onWindowResize() {
+  private onWindowResize() {
     let { width, height } = this.getSceneSize();
     this.width = width;
     this.height = height;
@@ -149,7 +161,7 @@ class ThreeScene extends TypedEventDispatcher<dispatchEventType> {
       this.options.devicePixelRatio || window.devicePixelRatio
     );
   }
-  onMouseMove(e: MouseEvent) {
+  private onMouseMove(e: MouseEvent) {
     if (this.stopAnimation) return;
     let { left, top, width, height } =
       this.renderer.domElement.getBoundingClientRect();
@@ -162,42 +174,42 @@ class ThreeScene extends TypedEventDispatcher<dispatchEventType> {
         false
       );
       if (meshs.length) {
-        this.dispatchEvent({
+        this.emit({
           type: "onMouseMoveFind",
           meshs,
-        } as unknown as dispatchEventType);
+        });
       }
     }
   }
-  onClick(e: MouseEvent) {
+  private onClick(e: MouseEvent) {
     if (this.stopAnimation) return;
     let meshs = this.raycaster.ray.intersectObjects(this.scene.children, false);
 
-    this.dispatchEvent({ type: "onClick", meshs } as dispatchEventType);
+    this.emit({ type: "onClick", meshs });
     if (this.options.enableRay) {
       this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
       let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
-      this.dispatchEvent({ type: "onClickFind", meshs } as dispatchEventType);
+      this.emit({ type: "onClickFind", meshs });
     } else {
       console.warn("请配置options中enableRay为true");
     }
   }
-  animation() {
+  private animation() {
     if (!this.stopAnimation) {
-      this.dispatchEvent({ type: "onRenderBefor" } as dispatchEventType);
+      this.emit({ type: "onRenderBefor" });
       this.renderer.render(this.scene, this.camera);
-      this.dispatchEvent({ type: "onRenderAfter" } as dispatchEventType);
+      this.emit({ type: "onRenderAfter" });
     }
     this.animationId = requestAnimationFrame(this.animation.bind(this));
 
     if (this.stats) this.stats.update();
   }
 
-  getSceneSize() {
+  public getSceneSize() {
     return this.domElem?.getBoundingClientRect();
   }
 
-  dispose() {
+  public dispose() {
     cancelAnimationFrame(this.animationId as number);
     this.scene.children.forEach((childrenObj) => {
       if (childrenObj.type === "Mesh") {
@@ -216,4 +228,3 @@ class ThreeScene extends TypedEventDispatcher<dispatchEventType> {
     this.renderer.dispose();
   }
 }
-export default ThreeScene;

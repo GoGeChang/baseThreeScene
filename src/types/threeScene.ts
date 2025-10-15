@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer";
 import { CSS3DRenderer } from "three/examples/jsm/renderers/CSS3DRenderer";
-import { Event, EventDispatcher } from "three";
+import { EventDispatcher } from "three";
 
 export type ThreeSceneOptions = {
   domElem?: HTMLElement; // 需要将three场景canvas插入的dom，如果没有，就默认插入元素父节点
@@ -22,19 +22,33 @@ export type BaseEventType =
   | "onMouseMove"
   | "onClick";
 
-export interface dispatchEventType extends Event {
-  type: AnimationEvent | BaseEventType;
+export interface DispatchEventPayload {
   mesh?: THREE.Object3D | THREE.Mesh;
   meshs?: THREE.Intersection[];
 }
 
-export class TypedEventDispatcher<
-  T extends { type: string }
-> extends EventDispatcher {
+export type ThreeSceneEvent =
+  | ({ type: AnimationEvent } & DispatchEventPayload)
+  | ({ type: BaseEventType } & DispatchEventPayload);
+
+export class TypedEventBus<T extends { type: string }> {
+  private readonly _dispatcher = new EventDispatcher();
+
+  addEventListener<K extends T["type"]>(
+    type: K,
+    listener: (event: Extract<T, { type: K }>) => void
+  ): void {
+    (this._dispatcher.addEventListener as any)(type, listener);
+  }
+
+  removeEventListener<K extends T["type"]>(
+    type: K,
+    listener: (event: Extract<T, { type: K }>) => void
+  ): void {
+    (this._dispatcher.removeEventListener as any)(type, listener);
+  }
+
   dispatchEvent(event: T): void {
-    (EventDispatcher.prototype.dispatchEvent as (event: any) => void).call(
-      this,
-      event
-    );
+    (this._dispatcher.dispatchEvent as any)(event);
   }
 }
