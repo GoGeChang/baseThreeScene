@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
-import threeScene from "../index";
+import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
+import ThreenScene from "../index";
 import { ThreeSceneOptions } from "../src/types/threeScene";
 
 const props = defineProps<{
@@ -13,8 +13,9 @@ const props = defineProps<{
 const emits = defineEmits(["onReady"]);
 const threeContainer = ref<HTMLElement | null>(null);
 
-onMounted(() => {
-  const baseScene = new threeScene({
+onMounted(async () => {
+  await nextTick();
+  const baseScene = new ThreenScene({
     domElem: threeContainer.value as HTMLElement,
     showAxesHelper: true,
     showGridHelper: true,
@@ -22,7 +23,20 @@ onMounted(() => {
   });
   emits("onReady", baseScene);
 
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const { width, height } = entry.contentRect;
+      if (width === 0 || height === 0) {
+        requestAnimationFrame(() => baseScene.onWindowResize());
+      } else {
+        baseScene.onWindowResize();
+      }
+    }
+  });
+  resizeObserver.observe(threeContainer.value!);
+
   onBeforeUnmount(() => {
+    resizeObserver.disconnect();
     cancelAnimationFrame(baseScene.animationId as number);
 
     baseScene.dispose();

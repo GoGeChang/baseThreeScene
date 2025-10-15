@@ -150,7 +150,7 @@ export default class ThreeScene {
       }
     }
   }
-  private onWindowResize() {
+  public onWindowResize() {
     let { width, height } = this.getSceneSize();
     this.width = width;
     this.height = height;
