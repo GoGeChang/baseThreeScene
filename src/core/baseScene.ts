@@ -2,9 +2,12 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { EventDispatcher } from "three";
-import { threeSceneOptions } from "types/threeScene";
-
-const defaultOptions: threeSceneOptions = {
+import {
+  TypedEventDispatcher,
+  type ThreeSceneOptions,
+  type dispatchEventType,
+} from "../types/threeScene";
+const defaultOptions: ThreeSceneOptions = {
   showGridHelper: false,
   showAxesHelper: false,
   showFloor: true,
@@ -15,16 +18,7 @@ const defaultOptions: threeSceneOptions = {
 /**
  * 生成基础场景和一些配置
  */
-class threeScene extends EventDispatcher {
-  /**
-   * @param {THREE.WebGLRenderer} renderer webgl渲染器对象
-   * @param {THREE.Scene | null} scene 场景对象
-   * @param {THREE.AmbientLight} light 基础的环境光
-   * @param {THREE.PerspectiveCamera} camera 透视相机，越远的物体越小
-   * @param {THREE.control} OrbitControls 相机控制器
-   * @param {HTMLElement}  domElem 生成的canvas DOM对象
-   * @param {threeSceneOptions}  options 配置对象，用于额外的配置基础场景元素
-   */
+class ThreeScene extends TypedEventDispatcher<dispatchEventType> {
   renderer: THREE.WebGLRenderer;
   scene = new THREE.Scene();
   light = new THREE.AmbientLight();
@@ -49,10 +43,10 @@ class threeScene extends EventDispatcher {
   animationId = <undefined | number>undefined;
   event = <EventDispatcher>new EventDispatcher();
   domElem = <HTMLElement | undefined>undefined;
-  options: threeSceneOptions;
+  options: ThreeSceneOptions;
   stats: any;
   stopAnimation = false;
-  constructor(options: threeSceneOptions = defaultOptions) {
+  constructor(options: ThreeSceneOptions = defaultOptions) {
     super();
     this.options = options;
     this.enabelRay = options.enableRay;
@@ -92,6 +86,16 @@ class threeScene extends EventDispatcher {
       false
     );
     this.domElem.addEventListener("click", this.onClick.bind(this), false);
+    document.addEventListener("fullscreenchange", () => {
+      if (this.renderer && this.domElem) {
+        const { clientWidth, clientHeight } = this.domElem;
+        this.renderer.setSize(clientWidth, clientHeight);
+        if (this.camera) {
+          this.camera.aspect = clientWidth / clientHeight;
+          this.camera.updateProjectionMatrix();
+        }
+      }
+    });
 
     // 开始动画
     this.animation();
@@ -158,30 +162,31 @@ class threeScene extends EventDispatcher {
         false
       );
       if (meshs.length) {
-        // @ts-ignore
-        this.dispatchEvent({ type: "onMouseMoveFind", meshs });
+        this.dispatchEvent({
+          type: "onMouseMoveFind",
+          meshs,
+        } as unknown as dispatchEventType);
       }
     }
   }
   onClick(e: MouseEvent) {
     if (this.stopAnimation) return;
     let meshs = this.raycaster.ray.intersectObjects(this.scene.children, false);
-    // @ts-ignore
-    this.dispatchEvent({ type: "onClick", meshs });
+
+    this.dispatchEvent({ type: "onClick", meshs } as dispatchEventType);
     if (this.options.enableRay) {
       this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
       let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
-      // @ts-ignore
-      this.dispatchEvent({ type: "onClickFind", meshs });
+      this.dispatchEvent({ type: "onClickFind", meshs } as dispatchEventType);
+    } else {
+      console.warn("请配置options中enableRay为true");
     }
   }
   animation() {
     if (!this.stopAnimation) {
-      // @ts-ignore
-      this.dispatchEvent({ type: "onRenderBefor" });
+      this.dispatchEvent({ type: "onRenderBefor" } as dispatchEventType);
       this.renderer.render(this.scene, this.camera);
-      // @ts-ignore
-      this.dispatchEvent({ type: "onRenderAfter" });
+      this.dispatchEvent({ type: "onRenderAfter" } as dispatchEventType);
     }
     this.animationId = requestAnimationFrame(this.animation.bind(this));
 
@@ -211,4 +216,4 @@ class threeScene extends EventDispatcher {
     this.renderer.dispose();
   }
 }
-export default threeScene;
+export default ThreeScene;

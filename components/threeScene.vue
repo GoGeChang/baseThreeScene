@@ -5,10 +5,10 @@
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import threeScene from "../index";
-import { threeSceneOptions } from "../types/threeScene";
+import { ThreeSceneOptions } from "../src/types/threeScene";
 
 const props = defineProps<{
-  options?: threeSceneOptions;
+  options?: ThreeSceneOptions;
 }>();
 const emits = defineEmits(["onReady"]);
 const threeContainer = ref<HTMLElement | null>(null);

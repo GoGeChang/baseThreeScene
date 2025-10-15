@@ -1,21 +1,24 @@
 {
   "compilerOptions": {
-    "lib": ["es5", "es6", "ES2022", "DOM"],
+    "lib": ["ES2022", "DOM"],
     "baseUrl": "./",
-    "declaration": true, // 是否生成.d.ts文件
-    // "declarationDir": "./build", // .d.ts文件输出路径
-    "target": "ES5", // 编译目标
-    "module": "ES6",
-    // "strict": true,
+    "declaration": true, // 生成 .d.ts 文件
+    "emitDeclarationOnly": true, // 只生成类型声明（配合 vue-tsc）
+    "target": "ESNext", // 建议目标改为 ESNext，和 Vite 对齐
+    "module": "ESNext",
     "moduleResolution": "Node",
     "outDir": "./build",
-    "sourceMap": false,    
-    // "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true, // 用于允许从没有默认导出的模块中默认导入
-    "esModuleInterop": true, //是否允许export=导出，import from导入
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "types": ["node", "vue"] // 👈 告诉编译器处理 Vue 类型
   },
-  // "ts-node": {
-  //   "esm": true
-  // },
-  "include": ["lib/**/*", "index.ts"]
+  "include": [
+    "index.ts",
+    "src/core/**/*",
+    "src/types/**/*.ts",
+    "components/**/*.vue", // 👈 一定要显式包含 .vue 文件
+    "src/types/**/*.d.ts" // 👈 让 vue-shim.d.ts 也参与编译
+  ]
 }
