@@ -12,13 +12,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "jsx": "preserve",
-    "types": ["node", "vue"] // 👈 告诉编译器处理 Vue 类型
+    "types": ["node", "vue"]
   },
   "include": [
     "index.ts",
     "src/core/**/*",
     "src/types/**/*.ts",
-    "components/**/*.vue", // 👈 一定要显式包含 .vue 文件
-    "src/types/**/*.d.ts" // 👈 让 vue-shim.d.ts 也参与编译
+    "components/**/*.vue",
+    "src/types/**/*.d.ts"
   ]
 }
