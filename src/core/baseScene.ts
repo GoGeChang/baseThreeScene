@@ -22,6 +22,10 @@ export default class ThreeScene {
   private readonly handleClick: (e: MouseEvent) => void;
   private readonly handleFullscreenChange: () => void;
   private resizeObserver?: ResizeObserver;
+  private lastNonFullscreenWidth?: number;
+  private widthBeforeFullscreen?: number;
+  private shouldUseWidthBeforeFullscreen = false;
+  private isFullscreen = false;
   addEventListener<K extends ThreeSceneEvent["type"]>(
     type: K,
     listener: (event: Extract<ThreeSceneEvent, { type: K }>) => void
@@ -68,6 +72,21 @@ export default class ThreeScene {
     this.handleMouseMove = this.onMouseMove.bind(this);
     this.handleClick = this.onClick.bind(this);
     this.handleFullscreenChange = () => {
+      const isFullscreen = !!document.fullscreenElement;
+      if (isFullscreen && !this.isFullscreen) {
+        if (this.lastNonFullscreenWidth !== undefined) {
+          this.widthBeforeFullscreen = this.lastNonFullscreenWidth;
+        } else if (this.domElem) {
+          this.widthBeforeFullscreen =
+            this.domElem.getBoundingClientRect().width;
+        }
+      }
+      if (!isFullscreen && this.isFullscreen) {
+        if (this.widthBeforeFullscreen !== undefined) {
+          this.shouldUseWidthBeforeFullscreen = true;
+        }
+      }
+      this.isFullscreen = isFullscreen;
       if (this.renderer && this.domElem) {
         const { clientWidth, clientHeight } = this.domElem;
         this.renderer.setSize(clientWidth, clientHeight);
@@ -222,7 +241,20 @@ export default class ThreeScene {
     if (!rect) {
       return { width: window.innerWidth, height: window.innerHeight };
     }
-    return { width: rect.width, height: rect.height };
+    if (!document.fullscreenElement) {
+      this.lastNonFullscreenWidth = rect.width;
+    }
+    let width = rect.width;
+    if (
+      !document.fullscreenElement &&
+      this.shouldUseWidthBeforeFullscreen &&
+      this.widthBeforeFullscreen !== undefined
+    ) {
+      width = this.widthBeforeFullscreen;
+      this.shouldUseWidthBeforeFullscreen = false;
+      this.widthBeforeFullscreen = undefined;
+    }
+    return { width, height: rect.height };
   }
 
   public dispose() {
@@ -237,10 +269,8 @@ export default class ThreeScene {
     );
     this.resizeObserver?.disconnect();
     /**保证移除GUI */
-    const guiElem = document.querySelector(".lil-gui");
-    if (guiElem && guiElem.parentNode) {
-      guiElem.parentNode.removeChild(guiElem);
-    }
+    const guiElems = document.querySelectorAll(".lil-gui");
+    guiElems.forEach((guiElem) => guiElem.remove());
     if (this.stats?.dom?.parentNode) {
       this.stats.dom.parentNode.removeChild(this.stats.dom);
     }

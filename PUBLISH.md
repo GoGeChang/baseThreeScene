@@ -18,7 +18,6 @@
 构建后将生成以下产物：
 
 - `build/index.es.js`
-- `build/index.cjs.js`
 - `build/index.d.ts`
 
 ## 发布步骤

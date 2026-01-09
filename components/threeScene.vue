@@ -35,18 +35,15 @@ onMounted(async () => {
   });
   resizeObserver.observe(threeContainer.value!);
 
-  onBeforeUnmount(() => {
+  onBeforeUnmount(async () => {
     resizeObserver.disconnect();
     cancelAnimationFrame(baseScene.animationId as number);
 
     baseScene.dispose();
     // 移除GUI DOM
-    let lilGui = document.querySelectorAll(".lil-gui");
-    if (lilGui.length) {
-      lilGui.forEach((item) => {
-        item.remove();
-      });
-    }
+    await nextTick();
+    const lilGui = document.querySelectorAll(".lil-gui");
+    lilGui.forEach((item) => item.remove());
     // 移除stats DOM
     if (baseScene.stats) {
       baseScene.stats.dom?.remove();

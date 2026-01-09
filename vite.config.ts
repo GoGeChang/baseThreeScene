@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
 import dts from "vite-plugin-dts";
+import obfuscator from "rollup-plugin-javascript-obfuscator";
 
 // Vite library mode configuration
 export default defineConfig({
@@ -23,11 +24,35 @@ export default defineConfig({
       name: "ThreeSceneVue3",
       // 输出文件名
       fileName: (format) => `index.${format}.js`,
-      formats: ["es", "cjs"],
+      formats: ["es"],
+    },
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+      format: {
+        comments: false,
+      },
     },
     rollupOptions: {
       // three 和 vue 都作为外部依赖，不打进包里
       external: ["vue", "three"],
+      plugins: [
+        obfuscator(
+          {
+            compact: true,
+            stringArray: true,
+            stringArrayThreshold: 0.6,
+            rotateStringArray: true,
+            stringArrayEncoding: ["base64"],
+            controlFlowFlattening: false,
+            deadCodeInjection: false,
+          },
+          ["**/node_modules/**"]
+        ),
+      ],
       output: {
         globals: {
           vue: "Vue",
