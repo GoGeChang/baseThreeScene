@@ -1,6 +1,6 @@
 {
   "name": "@gogec/three-scene-vue3",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "description": "创建基本三维场景，提供渲染事件监听，只需几行代码即可快速搭建一个三维场景，无需手动配置渲染器、相机和场景。",
   "keywords": [
     "three.js",
@@ -29,7 +29,8 @@
   ],
   "scripts": {
     "build": "vite build && vue-tsc --declaration --emitDeclarationOnly --outDir build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "publish": "npm publish --access public"
   },
   "author": "李嘉图 (GoGeChang)",
   "license": "MIT",

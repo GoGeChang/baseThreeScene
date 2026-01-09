@@ -6,7 +6,7 @@ import { TypedEventBus, ThreeSceneEvent } from "../types/threeScene";
 const defaultOptions: ThreeSceneOptions = {
   showGridHelper: false,
   showAxesHelper: false,
-  showFloor: true,
+  showFloor: false,
   showStats: false,
   enableRay: false,
   devicePixelRatio: 1,
@@ -17,6 +17,11 @@ const defaultOptions: ThreeSceneOptions = {
 export default class ThreeScene {
   // 强类型事件总线
   private readonly bus = new TypedEventBus<ThreeSceneEvent>();
+  private readonly handleResize: () => void;
+  private readonly handleMouseMove: (e: MouseEvent) => void;
+  private readonly handleClick: (e: MouseEvent) => void;
+  private readonly handleFullscreenChange: () => void;
+  private resizeObserver?: ResizeObserver;
   addEventListener<K extends ThreeSceneEvent["type"]>(
     type: K,
     listener: (event: Extract<ThreeSceneEvent, { type: K }>) => void
@@ -44,12 +49,10 @@ export default class ThreeScene {
     0.1,
     1000
   );
-  enabelRay = false;
   // 创建射线
   raycaster = {
     ray: new THREE.Raycaster(),
     mouse: new THREE.Vector2(),
-    rayObject3D: this.scene.children,
   };
 
   // 在鼠标移动中根据鼠标位置查询物体
@@ -60,14 +63,26 @@ export default class ThreeScene {
   stats: any;
   stopAnimation = false;
   constructor(options: ThreeSceneOptions = defaultOptions) {
-    this.options = options;
-    this.enabelRay = options.enableRay;
+    this.options = { ...defaultOptions, ...options };
+    this.handleResize = this.onWindowResize.bind(this);
+    this.handleMouseMove = this.onMouseMove.bind(this);
+    this.handleClick = this.onClick.bind(this);
+    this.handleFullscreenChange = () => {
+      if (this.renderer && this.domElem) {
+        const { clientWidth, clientHeight } = this.domElem;
+        this.renderer.setSize(clientWidth, clientHeight);
+        if (this.camera) {
+          this.camera.aspect = clientWidth / clientHeight;
+          this.camera.updateProjectionMatrix();
+        }
+      }
+    };
 
     this.renderer = new THREE.WebGLRenderer(options.renderParams);
 
     this.light.position.set(30, 30, 30);
     this.camera.position.set(20, 20, 20);
-    this.domElem = options.domElem;
+    this.domElem = options.domElem ?? document.body;
     this.control = new OrbitControls(this.camera, this.renderer.domElement);
     let { width, height } = this.getSceneSize();
     this.width = width;
@@ -87,32 +102,25 @@ export default class ThreeScene {
     (this.domElem as HTMLElement).appendChild(this.renderer.domElement);
 
     // 场景自适应大小
-    window.addEventListener("resize", this.onWindowResize.bind(this), false);
+    window.addEventListener("resize", this.handleResize, false);
+    if (this.domElem && "ResizeObserver" in window) {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.onWindowResize();
+      });
+      this.resizeObserver.observe(this.domElem);
+    }
 
     this.onWindowResize();
 
     this.initOptionElem();
-    this.domElem.addEventListener(
-      "mousemove",
-      this.onMouseMove.bind(this),
-      false
-    );
-    this.domElem.addEventListener("click", this.onClick.bind(this), false);
-    document.addEventListener("fullscreenchange", () => {
-      if (this.renderer && this.domElem) {
-        const { clientWidth, clientHeight } = this.domElem;
-        this.renderer.setSize(clientWidth, clientHeight);
-        if (this.camera) {
-          this.camera.aspect = clientWidth / clientHeight;
-          this.camera.updateProjectionMatrix();
-        }
-      }
-    });
+    this.domElem.addEventListener("mousemove", this.handleMouseMove, false);
+    this.domElem.addEventListener("click", this.handleClick, false);
+    document.addEventListener("fullscreenchange", this.handleFullscreenChange);
 
     // 开始动画
     this.animation();
   }
-  private async initOptionElem() {
+  private initOptionElem() {
     // 添加辅助网格底盘
     if (this.options.showGridHelper) {
       let tempGrid = new THREE.GridHelper(50, 25);
@@ -139,15 +147,14 @@ export default class ThreeScene {
       floorPlan.rotateX(Math.PI / 2);
 
       this.scene.add(floorPlan);
-
-      if (this.options.showStats) {
-        // 开启statsUI
-        let state = new Stats();
-        state.dom.style.cssText =
-          "position:absolute;left:12%;bottom:0px;z-index:9999;";
-        document.body.appendChild(state.dom);
-        this.stats = state;
-      }
+    }
+    if (this.options.showStats) {
+      // 开启statsUI
+      let state = new Stats();
+      state.dom.style.cssText =
+        "position:absolute;left:12%;bottom:0px;z-index:9999;";
+      document.body.appendChild(state.dom);
+      this.stats = state;
     }
   }
   public onWindowResize() {
@@ -183,13 +190,18 @@ export default class ThreeScene {
   }
   private onClick(e: MouseEvent) {
     if (this.stopAnimation) return;
-    let meshs = this.raycaster.ray.intersectObjects(this.scene.children, false);
-
-    this.emit({ type: "onClick", meshs });
+    let { left, top, width, height } =
+      this.renderer.domElement.getBoundingClientRect();
+    this.raycaster.mouse.x = ((e.clientX - left) / width) * 2 - 1;
+    this.raycaster.mouse.y = -((e.clientY - top) / height) * 2 + 1;
+    this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
+    let intersections = this.raycaster.ray.intersectObjects(
+      this.scene.children,
+      false
+    );
+    this.emit({ type: "onClick", meshs: intersections });
     if (this.options.enableRay) {
-      this.raycaster.ray.setFromCamera(this.raycaster.mouse, this.camera);
-      let meshs = this.raycaster.ray.intersectObjects(this.scene.children);
-      this.emit({ type: "onClickFind", meshs });
+      this.emit({ type: "onClickFind", meshs: intersections });
     } else {
       console.warn("请配置options中enableRay为true");
     }
@@ -206,25 +218,50 @@ export default class ThreeScene {
   }
 
   public getSceneSize() {
-    return this.domElem?.getBoundingClientRect();
+    const rect = this.domElem?.getBoundingClientRect();
+    if (!rect) {
+      return { width: window.innerWidth, height: window.innerHeight };
+    }
+    return { width: rect.width, height: rect.height };
   }
 
   public dispose() {
+    this.stopAnimation = true;
     cancelAnimationFrame(this.animationId as number);
+    window.removeEventListener("resize", this.handleResize, false);
+    this.domElem?.removeEventListener("mousemove", this.handleMouseMove, false);
+    this.domElem?.removeEventListener("click", this.handleClick, false);
+    document.removeEventListener(
+      "fullscreenchange",
+      this.handleFullscreenChange
+    );
+    this.resizeObserver?.disconnect();
+    /**保证移除GUI */
+    const guiElem = document.querySelector(".lil-gui");
+    if (guiElem && guiElem.parentNode) {
+      guiElem.parentNode.removeChild(guiElem);
+    }
+    if (this.stats?.dom?.parentNode) {
+      this.stats.dom.parentNode.removeChild(this.stats.dom);
+    }
     this.scene.children.forEach((childrenObj) => {
       if (childrenObj.type === "Mesh") {
         childrenObj.traverse((obj) => {
           let temoObj = obj as THREE.Mesh;
           let geometry: THREE.BufferGeometry = temoObj.geometry;
-          let material = temoObj.material as THREE.Material;
+          let material = temoObj.material as THREE.Material | THREE.Material[];
 
           geometry.dispose();
-          material.dispose();
+          if (Array.isArray(material)) {
+            material.forEach((item) => item.dispose());
+          } else {
+            material.dispose();
+          }
           this.scene.remove(obj);
         });
       }
     });
-    this.control.dispose();
+    this.control?.dispose();
     this.renderer.dispose();
   }
 }
