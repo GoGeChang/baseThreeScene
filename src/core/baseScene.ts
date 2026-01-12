@@ -272,7 +272,7 @@ export default class ThreeScene {
     const guiElems = document.querySelectorAll(".lil-gui");
     guiElems.forEach((guiElem) => guiElem.remove());
     if (this.stats?.dom?.parentNode) {
-      this.stats.dom.parentNode.removeChild(this.stats.dom);
+      this.stats.dom.remove(this.stats.dom);
     }
     this.scene.children.forEach((childrenObj) => {
       if (childrenObj.type === "Mesh") {

@@ -12,43 +12,23 @@ const props = defineProps<{
 }>();
 const emits = defineEmits(["onReady"]);
 const threeContainer = ref<HTMLElement | null>(null);
+let baseScene: ThreenScene | null = null;
 
 onMounted(async () => {
-  await nextTick();
-  const baseScene = new ThreenScene({
+  baseScene = new ThreenScene({
     domElem: threeContainer.value as HTMLElement,
     showAxesHelper: true,
     showGridHelper: true,
     ...props.options,
   });
   emits("onReady", baseScene);
+});
 
-  const resizeObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const { width, height } = entry.contentRect;
-      if (width === 0 || height === 0) {
-        requestAnimationFrame(() => baseScene.onWindowResize());
-      } else {
-        baseScene.onWindowResize();
-      }
-    }
-  });
-  resizeObserver.observe(threeContainer.value!);
+onBeforeUnmount(async () => {
+  if (!baseScene) return;
 
-  onBeforeUnmount(async () => {
-    resizeObserver.disconnect();
-    cancelAnimationFrame(baseScene.animationId as number);
-
-    baseScene.dispose();
-    // 移除GUI DOM
-    await nextTick();
-    const lilGui = document.querySelectorAll(".lil-gui");
-    lilGui.forEach((item) => item.remove());
-    // 移除stats DOM
-    if (baseScene.stats) {
-      baseScene.stats.dom?.remove();
-    }
-  });
+  cancelAnimationFrame(baseScene.animationId as number);
+  baseScene.dispose();
 });
 </script>
 <style lang="scss" scoped>

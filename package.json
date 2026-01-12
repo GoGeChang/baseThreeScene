@@ -1,6 +1,6 @@
 {
   "name": "@gogec/three-scene-vue3",
-  "version": "0.0.11",
+  "version": "0.0.13",
   "description": "创建基本三维场景，提供渲染事件监听，只需几行代码即可快速搭建一个三维场景，无需手动配置渲染器、相机和场景。",
   "keywords": [
     "three.js",
